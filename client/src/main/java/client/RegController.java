@@ -6,6 +6,8 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 
+import java.sql.Connection;
+
 public class RegController {
     private Controller controller;
 
@@ -29,6 +31,7 @@ public class RegController {
 
     public void showResult(String result) {
         if (result.equals("/reg_ok")) {
+
             textArea.appendText("Регистрация прошла успешно\n");
         } else {
             textArea.appendText("Регистрация не удалась. \nВозможно логин или никнейм заняты\n");

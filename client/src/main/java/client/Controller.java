@@ -1,5 +1,6 @@
 package client;
 
+import client.util.LogsWriter;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -51,6 +52,7 @@ public class Controller implements Initializable {
 
     private boolean authenticated;
     private String nickname;
+    protected String login;
 
     private Stage stage;
     private Stage regStage;
@@ -122,10 +124,12 @@ public class Controller implements Initializable {
                             textArea.appendText(str + "\n");
                         }
                     }
+                    LogsWriter logger = new LogsWriter("history_" + login + ".txt");
+                    textArea.appendText(logger.getLastLines() != null ? logger.getLastLines() : "");
                     //цикл работы
                     while (authenticated) {
-                        String str = in.readUTF();
 
+                        String str = in.readUTF();
                         if (str.startsWith("/")) {
                             if (str.equals("/end")) {
                                 break;
@@ -148,6 +152,9 @@ public class Controller implements Initializable {
                             //==============//
                         } else {
                             textArea.appendText(str + "\n");
+                            logger.writeFile(str);
+                            logger.close();
+
                         }
                     }
                 } catch (IOException e) {
@@ -181,16 +188,22 @@ public class Controller implements Initializable {
 
     @FXML
     public void tryToAuth(ActionEvent actionEvent) {
-        if (socket == null || socket.isClosed()) {
-            connect();
-        }
-        String msg = String.format("/auth %s %s",
-                loginField.getText().trim(), passwordField.getText().trim());
-
         try {
-            out.writeUTF(msg);
-            passwordField.clear();
-        } catch (IOException e) {
+            login = loginField.getText().trim();
+
+            if (socket == null || socket.isClosed()) {
+                connect();
+            }
+            String msg = String.format("/auth %s %s",
+                    loginField.getText().trim(), passwordField.getText().trim());
+
+            try {
+                out.writeUTF(msg);
+                passwordField.clear();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -246,6 +259,7 @@ public class Controller implements Initializable {
         String msg = String.format("/reg %s %s %s", login, password, nickname);
         try {
             out.writeUTF(msg);
+            this.login = login;
         } catch (IOException e) {
             e.printStackTrace();
         }
