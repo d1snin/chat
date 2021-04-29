@@ -7,6 +7,7 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Logger;
 
 public class ClientHandler {
     private Server server;
@@ -18,6 +19,8 @@ public class ClientHandler {
     private String login;
 
     private ExecutorService service = Executors.newCachedThreadPool();
+
+    public static Logger logger = Logger.getLogger("OpenChat");
 
     public ClientHandler(Server server, Socket socket) {
         try {
@@ -55,7 +58,7 @@ public class ClientHandler {
                                     nickname = newNick;
                                     sendMsg("/auth_ok " + nickname);
                                     server.subscribe(this);
-                                    System.out.println("Client authenticated. nick: " + nickname +
+                                    logger.info("Client authenticated. nick: " + nickname +
                                             " Address: " + socket.getRemoteSocketAddress());
                                     socket.setSoTimeout(0);
                                     break;
@@ -123,12 +126,12 @@ public class ClientHandler {
                 } catch (SocketTimeoutException e) {
                     sendMsg("/end");
                 } catch (RuntimeException e) {
-                    System.out.println(e.getMessage());
+                    logger.warning(e.getMessage());
                 } catch (IOException e) {
                     e.printStackTrace();
                 } finally {
                     server.unsubscribe(this);
-                    System.out.println("client disconnect " + socket.getRemoteSocketAddress());
+                    logger.warning("client disconnect " + socket.getRemoteSocketAddress());
                     try {
                         socket.close();
                     } catch (IOException e) {

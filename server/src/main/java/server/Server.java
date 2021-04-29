@@ -31,12 +31,12 @@ public class Server {
 
         try {
             server = new ServerSocket(PORT);
-            System.out.println("Server started");
+            ClientHandler.logger.info("Server started");
 
             while (true) {
                 socket = server.accept();
-                System.out.println(socket.getLocalSocketAddress());
-                System.out.println("Client connect: " + socket.getRemoteSocketAddress());
+                ClientHandler.logger.info(socket.getLocalSocketAddress().toString());
+                ClientHandler.logger.info("Client connect: " + socket.getRemoteSocketAddress());
                 new ClientHandler(this, socket);
             }
 
